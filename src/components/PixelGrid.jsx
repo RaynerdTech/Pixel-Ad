@@ -6,7 +6,7 @@ import AddPixelModal from './AddPixelModal';
 
 const BASE_BOX_SIZE = 1; // rem
 const MAX_SPAN = 2;
-const BASE_URL = 'http://localhost:5000'; // Central base URL
+// const BASE_URL = 'http://localhost:5000'; // Central base URL
 
 export default function PixelGrid() {
   const [pixels, setPixels] = useState([]);
@@ -16,7 +16,7 @@ export default function PixelGrid() {
   const fetchPixels = useCallback(async () => {
     console.log('Fetching pixels...');
     try {
-      const response = await fetch(`${BASE_URL}/pixels/view-pixel`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/pixels/view-pixel`);
       const data = await response.json();
       console.log('Fetched Pixel Data:', data);
 
@@ -24,7 +24,7 @@ export default function PixelGrid() {
         const generatedPixels = Array.from({ length: 1000 }, (_, i) => {
           const pixelData = data.find((pixel) => pixel.position === i);
           const imageUrl = pixelData?.imageUrl
-            ? `${BASE_URL}/${pixelData.imageUrl.replace(/^\/+/, '')}`
+            ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${pixelData.imageUrl.replace(/^\/+/, '')}`
             : null;
           return {
             id: i,

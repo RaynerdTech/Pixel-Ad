@@ -41,7 +41,6 @@ export default function AddPixelModal({ pixelId, onClose, onSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!imageFile || !email) {
       setError('Please select an image file and enter an email.');
       return;
@@ -59,10 +58,10 @@ export default function AddPixelModal({ pixelId, onClose, onSuccess }) {
       formData.append('email', email);
       formData.append('amount', fixedAmount.toString());
 
-      const res = await fetch('http://localhost:5000/payment/initialize', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/initialize`, {
         method: 'POST',
         body: formData,
-      });    
+      });
 
       const data = await res.json();
 
@@ -70,8 +69,11 @@ export default function AddPixelModal({ pixelId, onClose, onSuccess }) {
         throw new Error(data.message || 'Failed to initialize payment');
       }
 
- window.location.href = data.authorization_url;
+      if (onSuccess && typeof onSuccess === 'function') {
+        onSuccess();
+      }
 
+      window.location.href = data.authorization_url;
 
     } catch (err) {
       console.error("Payment Init Error:", err);

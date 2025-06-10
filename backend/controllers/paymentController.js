@@ -3,6 +3,7 @@ const Pixel = require('../models/Pixel');
 require('dotenv').config();
 
 const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY;
+const FRONTEND_URL = process.env.FRONTEND_URL;
 
 // @route POST /api/payment/initialize
 exports.initializeTransaction = async (req, res) => {
@@ -40,7 +41,7 @@ exports.initializeTransaction = async (req, res) => {
         email,
         amount: amount * 100,
         metadata,
-        callback_url: 'http://localhost:3000/success',
+        callback_url: `${process.env.FRONTEND_URL}/success`,
       },
       {
         headers: {

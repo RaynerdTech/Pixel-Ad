@@ -81,7 +81,7 @@ const Header = () => {
       {/* Logo: Link to homepage and closes menu if open */}
      <Link href="/" className="text-2xl font-extrabold text-gray-800 tracking-tight hover:text-blue-600 transition-colors duration-200" onClick={() => setIsOpen(false)}>
   Pixel
-  <span class="bg-gradient-to-r from-blue-500 to-blue-700 text-transparent bg-clip-text"> Ad</span>
+  <span className="bg-gradient-to-r from-blue-500 to-blue-700 text-transparent bg-clip-text"> Ad</span>
 </Link>
 
       {/* Desktop Navigation */}

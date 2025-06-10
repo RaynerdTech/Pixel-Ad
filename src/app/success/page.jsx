@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle, Loader2 } from 'lucide-react';
 
-const BACKEND_URL = 'http://localhost:5000'; // backend base url
+// const BACKEND_URL = 'http://localhost:5000'; // backend base url
 const GRID_WIDTH = 100; // adjust this to your actual grid width
 
 export default function SuccessPage() {
@@ -26,7 +26,7 @@ export default function SuccessPage() {
   useEffect(() => {
     const verifyPayment = async () => {
       try {
-        const res = await fetch(`${BACKEND_URL}/payment/verify/${reference}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/verify/${reference}`);
         const data = await res.json();
         if (!res.ok) {
           throw new Error(data.message || 'Failed to verify payment');
@@ -109,7 +109,7 @@ export default function SuccessPage() {
 
             <div className="mt-6">
               <img
-                src={`${BACKEND_URL}${pixel.imageUrl}`}
+                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}${pixel.imageUrl}`}
                 alt="Uploaded Pixel"
                 className="w-24 h-24 object-cover rounded-lg border mx-auto mb-6"
               />
