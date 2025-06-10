@@ -78,7 +78,7 @@ exports.verifyTransaction = async (req, res) => {
       // Calculate humanPosition first before using it
       const humanPosition = Number(metadata.position) + 1;
 
-      const imageUrl = `/uploads/${metadata.imageName}`;
+      const imageUrl = `/uploads${metadata.imageName}`;
 
       // Avoid duplicate pixel creation
       const exists = await Pixel.findOne({ position: humanPosition });
