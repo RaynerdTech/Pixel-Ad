@@ -25,9 +25,14 @@ app.use(bodyParser.json()); // for parsing application/json
 // Routes     
 app.use("/payment", paymentRoutes); // handles /payment/*
 app.use("/pixels", pixelRoutes);
-
+ 
 // Serve static files from /uploads
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use('/uploads', (req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "https://pixel-ad-rho.vercel.app"); // or restrict to your Vercel domain
+  res.header("Access-Control-Allow-Methods", "GET, OPTIONS");
+  next();
+}, express.static(path.join(__dirname, 'uploads')));
+
 
 // Test route
 app.get("/", (req, res) => {
@@ -35,7 +40,7 @@ app.get("/", (req, res) => {
 });
 
 // MongoDB connection
-mongoose
+mongoose 
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
