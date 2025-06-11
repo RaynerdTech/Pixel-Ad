@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const path = require("path");
 require("dotenv").config();
 
 const paymentRoutes = require("./routes/paymentRoute");
@@ -10,11 +9,11 @@ const pixelRoutes = require("./routes/Pixel");
 
 const app = express();
 
-// ✅ Allow both Vercel and localhost:3000
+// ✅ Allow both Vercel and localhost
 app.use(cors({
   origin: [
     'https://pixel-ad-rho.vercel.app',
-    'http://localhost:3000',
+    'http://localhost:3001',
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
@@ -22,30 +21,22 @@ app.use(cors({
 
 app.use(bodyParser.json()); // for parsing application/json
 
-// Routes     
+// ✅ Main Routes
 app.use("/payment", paymentRoutes); // handles /payment/*
 app.use("/pixels", pixelRoutes);
- 
-// Serve static files from /uploads
-app.use('/uploads', (req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://pixel-ad-rho.vercel.app"); // or restrict to your Vercel domain
-  res.header("Access-Control-Allow-Methods", "GET, OPTIONS");
-  next();
-}, express.static(path.join(__dirname, 'uploads')));
 
-
-// Test route
+// ✅ Health check
 app.get("/", (req, res) => {
   res.send("Million Dollar Homepage API is working!");
 });
 
-// MongoDB connection
-mongoose 
+// ✅ MongoDB connection
+mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-// Start server
+// ✅ Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

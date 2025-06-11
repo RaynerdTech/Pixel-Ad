@@ -120,17 +120,18 @@ export default function SuccessClient() {
             </p>
           </div>
 
-          {pixel.imageUrl && (
-            <div className="mt-8 flex justify-center">
-              <Image
-                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}${pixel.imageUrl}`}
-                alt="Your Unique Pixel"
-                width={128}
-                height={128}
-                className="rounded-xl border-4 border-blue-300 shadow-lg transition-transform duration-300 hover:scale-105"
-              />
-            </div>
-          )}
+         {pixel.imageUrl && (
+  <div className="mt-8 flex justify-center">
+    <Image
+      src={pixel.imageUrl}
+      alt="Your Unique Pixel"
+      width={128}
+      height={128}
+      className="rounded-xl border-4 border-blue-300 shadow-lg transition-transform duration-300 hover:scale-105"
+    />
+  </div>
+)}
+
 
           <button
             onClick={() => window.location.href = '/'}

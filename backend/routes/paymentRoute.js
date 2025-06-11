@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const upload = require('../middleware/upload');
-const { initializeTransaction, verifyTransaction } = require('../controllers/paymentController');
+const {
+  initializeTransaction,
+  verifyTransaction,
+  upload, // ✅ Import Cloudinary-based upload middleware
+} = require('../controllers/paymentController');
 
-// Initialize with image and metadata
+// ✅ Use Cloudinary upload middleware here
 router.post('/initialize', upload.single('image'), initializeTransaction);
-
-// Called after payment via /success page with reference
 router.get('/verify/:reference', verifyTransaction);
 
 module.exports = router;

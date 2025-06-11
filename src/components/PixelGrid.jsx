@@ -23,9 +23,7 @@ export default function PixelGrid() {
       if (response.ok) {
         const generatedPixels = Array.from({ length: 1000 }, (_, i) => {
           const pixelData = data.find((pixel) => pixel.position === i);
-          const imageUrl = pixelData?.imageUrl
-            ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${pixelData.imageUrl.replace(/^\/+/, '')}`
-            : null;
+          const imageUrl = pixelData?.imageUrl || null;
           return {
             id: i,
             position: i,
