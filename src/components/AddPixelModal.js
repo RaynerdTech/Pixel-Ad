@@ -113,7 +113,7 @@ export default function AddPixelModal({ pixelId, onClose, onSuccess }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition disabled:bg-gray-50"
+                className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-600 focus:border-blue-600 outline-none transition disabled:bg-gray-50"
                 disabled={loading}
               />
             </div>
@@ -123,13 +123,13 @@ export default function AddPixelModal({ pixelId, onClose, onSuccess }) {
                 Upload Image *
               </label>
               <div
-                className="flex items-center space-x-3 border-2 border-dashed border-gray-300 rounded-lg p-3 bg-gray-50/50 cursor-pointer hover:border-indigo-500 hover:bg-indigo-50/50 transition group"
+                className="flex items-center space-x-3 border-2 border-dashed border-gray-300 rounded-lg p-3 bg-gray-50/50 cursor-pointer hover:border-blue-600 hover:bg-blue-50/50 transition group"
                 onClick={handleFileTrigger}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleFileTrigger(); }}
               >
-                <ImageIcon className="text-gray-400 group-hover:text-indigo-500 flex-shrink-0 transition" aria-hidden="true" size={20} />
+                <ImageIcon className="text-gray-400 group-hover:text-blue-600 flex-shrink-0 transition" aria-hidden="true" size={20} />
                 <span className={`flex-1 text-sm truncate ${imageFile ? 'text-gray-700' : 'text-gray-400'}`}>
                   {fileName}
                 </span>
@@ -158,7 +158,7 @@ export default function AddPixelModal({ pixelId, onClose, onSuccess }) {
                 value={link}
                 onChange={(e) => setLink(e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition disabled:bg-gray-50"
+                className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-600 focus:border-blue-600 outline-none transition disabled:bg-gray-50"
                 disabled={loading}
               />
             </div>
@@ -173,7 +173,7 @@ export default function AddPixelModal({ pixelId, onClose, onSuccess }) {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition resize-none sm:resize-y disabled:bg-gray-50"
+                className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-600 focus:border-blue-600 outline-none transition resize-none sm:resize-y disabled:bg-gray-50"
                 rows={3}
                 disabled={loading}
                 maxLength={150}
@@ -194,7 +194,7 @@ export default function AddPixelModal({ pixelId, onClose, onSuccess }) {
             type="submit"
             form="pixel-form"
             disabled={loading || !imageFile || !email}
-            className="w-full flex justify-center items-center bg-indigo-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-indigo-700 transition duration-200 disabled:opacity-60 disabled:cursor-not-allowed font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="w-full flex justify-center items-center bg-blue-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-blue-700 transition duration-200 disabled:cursor-not-allowed font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600"
           >
             {loading ? (
               <>

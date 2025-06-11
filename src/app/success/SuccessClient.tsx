@@ -59,46 +59,88 @@ export default function SuccessClient() {
     }
   }, [reference]);
 
-  if (!pixel) return null;
+  // Handle loading and error states first
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 flex items-center justify-center px-4 py-12 animate-fadeIn">
+        <div className="bg-white shadow-3xl rounded-3xl p-10 max-w-xl w-full text-center border border-blue-100 transform transition-all duration-500 hover:scale-[1.01]">
+          <div className="flex flex-col items-center justify-center">
+            <Loader2 className="h-12 w-12 text-blue-500 animate-spin-slow" />
+            <p className="mt-5 text-lg text-blue-700 font-medium">Verifying your payment...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 flex items-center justify-center px-4 py-12 animate-fadeIn">
+        <div className="bg-white shadow-3xl rounded-3xl p-10 max-w-xl w-full text-center border border-blue-100 transform transition-all duration-500 hover:scale-[1.01]">
+          <div className="text-red-600">
+            <p className="text-xl font-bold mb-3">⛔ Oh no! {error}</p>
+            <p className="text-base text-gray-500">Please contact support if the issue persists. We're here to help!</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If we reach here, it means loading is false and there's no error,
+  // so pixel should have data. TypeScript will now be confident.
+  // We can also add a final check just in case, though it should ideally be unreachable.
+  if (!pixel) {
+    return null; // Or render a generic message if neither loading nor error, but no pixel.
+  }
 
   const { row, col } = getRowCol(pixel.position);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-100 to-white flex items-center justify-center px-4 py-12 animate-fadeIn">
-      <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-xl w-full text-center border border-gray-200">
-        {loading ? (
-          <div className="flex flex-col items-center justify-center">
-            <Loader2 className="h-10 w-10 text-emerald-500 animate-spin" />
-            <p className="mt-4 text-gray-600">Verifying your payment...</p>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 flex items-center justify-center px-4 py-12 animate-fadeIn">
+      <div className="bg-white shadow-3xl rounded-3xl p-10 max-w-xl w-full text-center border border-blue-100 transform transition-all duration-500 hover:scale-[1.01]">
+        <>
+          <CheckCircle className="h-16 w-16 text-blue-500 mx-auto mb-6 drop-shadow-lg" />
+          <h1 className="text-4xl font-extrabold text-blue-800 mb-3 tracking-tight">Payment Confirmed!</h1>
+          <p className="text-lg text-blue-600 mb-8 font-light">Your unique pixel now shines brightly on our grid.</p>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 text-left text-base text-blue-700 shadow-lg mb-8 transition-all duration-300 hover:shadow-xl">
+            <p className="mb-2">
+              <strong className="text-blue-900">Pixel Location:</strong> Row {row}, Column {col}
+            </p>
+            <p className="mb-2">
+              <strong className="text-blue-900">Your Link:</strong>{' '}
+              <a href={pixel.linkUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline ml-2 transition-colors duration-200">
+                {pixel.linkUrl}
+              </a>
+            </p>
+            <p className="mb-2">
+              <strong className="text-blue-900">Amount Secured:</strong> ₦{pixel.amount}
+            </p>
+            <p className="mb-2">
+              <strong className="text-blue-900">Description:</strong> {pixel.description}
+            </p>
+            <p>
+              <strong className="text-blue-900">Transaction ID:</strong> {pixel.reference}
+            </p>
           </div>
-        ) : error ? (
-          <div className="text-red-600">
-            <p className="text-lg font-semibold mb-2">⛔ {error}</p>
-            <p className="text-sm text-gray-500">Please contact support if the issue persists.</p>
-          </div>
-        ) : (
-          <>
-            <CheckCircle className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
-            <h1 className="text-3xl font-semibold text-gray-800 mb-2">Payment Successful!</h1>
-            <p className="text-gray-600 mb-6">Your pixel has been added to the grid.</p>
 
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-left text-sm text-gray-700 shadow-inner mb-4">
-              <p className="mb-1"><strong>Pixel Position:</strong> Row {row}, Column {col}</p>
-              <p className="mb-1"><strong>Link:</strong> <a href={pixel.linkUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{pixel.linkUrl}</a></p>
-              <p className="mb-1"><strong>Amount Paid:</strong> ₦{pixel.amount}</p>
-              <p className="mb-1"><strong>Description:</strong> {pixel.description}</p>
-              <p><strong>Reference:</strong> {pixel.reference}</p>
+          {pixel.imageUrl && (
+            <div className="mt-8">
+              <img
+                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}${pixel.imageUrl}`}
+                alt="Your Unique Pixel"
+                className="w-32 h-32 object-cover rounded-xl border-4 border-blue-300 shadow-lg mx-auto mb-8 transition-transform duration-300 hover:scale-105"
+              />
             </div>
+          )}
 
-            <div className="mt-6">
-              <img src={`${process.env.NEXT_PUBLIC_BACKEND_URL}${pixel.imageUrl}`} alt="Uploaded Pixel" className="w-24 h-24 object-cover rounded-lg border mx-auto mb-6" />
-            </div>
-
-            <button onClick={() => window.location.href = '/'} className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-6 py-3 rounded-lg shadow-lg transition-transform active:scale-95">
-              Go Back to Home
-            </button>
-          </>
-        )}
+          <button
+            onClick={() => window.location.href = '/'}
+            className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-bold px-8 py-4 rounded-full shadow-2xl transition-all duration-300 ease-in-out transform active:scale-98 hover:scale-105 tracking-wide text-lg"
+          >
+            Explore the Grid
+          </button>
+        </>
       </div>
     </div>
   );
