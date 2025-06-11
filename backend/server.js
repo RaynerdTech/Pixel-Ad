@@ -13,7 +13,7 @@ const app = express();
 // ✅ Allow both Vercel and localhost:3000
 app.use(cors({
   origin: [
-    'https://pixel-854bm8rxg-raynerdtechs-projects.vercel.app',
+    'https://pixel-ad-rho.vercel.app',
     'http://localhost:3000',
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
