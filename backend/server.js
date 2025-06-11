@@ -11,7 +11,12 @@ const pixelRoutes = require("./routes/Pixel");
 const app = express();
 
 // Global middleware
-app.use(cors({ origin: '*' }));
+app.use(cors({
+  origin: ['https://pixel-854bm8rxg-raynerdtechs-projects.vercel.app'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+}));
+
 app.use(bodyParser.json()); // Only applies AFTER /payment/webhook
 
 // Routes     
