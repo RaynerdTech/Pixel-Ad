@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Image from 'next/image'; // ✅ Import Next Image
 import { CheckCircle, Loader2 } from 'lucide-react';
 
 const GRID_WIDTH = 100;
 
-// ✅ Define the type for pixel object
 type Pixel = {
   position: number;
   linkUrl: string;
@@ -59,7 +59,6 @@ export default function SuccessClient() {
     }
   }, [reference]);
 
-  // Handle loading and error states first
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 flex items-center justify-center px-4 py-12 animate-fadeIn">
@@ -79,18 +78,15 @@ export default function SuccessClient() {
         <div className="bg-white shadow-3xl rounded-3xl p-10 max-w-xl w-full text-center border border-blue-100 transform transition-all duration-500 hover:scale-[1.01]">
           <div className="text-red-600">
             <p className="text-xl font-bold mb-3">⛔ Oh no! {error}</p>
-            <p className="text-base text-gray-500">Please contact support if the issue persists. We're here to help!</p>
+            <p className="text-base text-gray-500">Please contact support if the issue persists. We&apos;re here to help!</p>
           </div>
         </div>
       </div>
     );
   }
 
-  // If we reach here, it means loading is false and there's no error,
-  // so pixel should have data. TypeScript will now be confident.
-  // We can also add a final check just in case, though it should ideally be unreachable.
   if (!pixel) {
-    return null; // Or render a generic message if neither loading nor error, but no pixel.
+    return null;
   }
 
   const { row, col } = getRowCol(pixel.position);
@@ -125,11 +121,13 @@ export default function SuccessClient() {
           </div>
 
           {pixel.imageUrl && (
-            <div className="mt-8">
-              <img
+            <div className="mt-8 flex justify-center">
+              <Image
                 src={`${process.env.NEXT_PUBLIC_BACKEND_URL}${pixel.imageUrl}`}
                 alt="Your Unique Pixel"
-                className="w-32 h-32 object-cover rounded-xl border-4 border-blue-300 shadow-lg mx-auto mb-8 transition-transform duration-300 hover:scale-105"
+                width={128}
+                height={128}
+                className="rounded-xl border-4 border-blue-300 shadow-lg transition-transform duration-300 hover:scale-105"
               />
             </div>
           )}

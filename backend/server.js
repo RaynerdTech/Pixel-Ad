@@ -10,17 +10,20 @@ const pixelRoutes = require("./routes/Pixel");
 
 const app = express();
 
-// Global middleware
+// ✅ Allow both Vercel and localhost:3000
 app.use(cors({
-  origin: ['https://pixel-854bm8rxg-raynerdtechs-projects.vercel.app'],
+  origin: [
+    'https://pixel-854bm8rxg-raynerdtechs-projects.vercel.app',
+    'http://localhost:3000',
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 }));
 
-app.use(bodyParser.json()); // Only applies AFTER /payment/webhook
+app.use(bodyParser.json()); // for parsing application/json
 
 // Routes     
-app.use("/payment", paymentRoutes); // handles /payment/* except /webhook
+app.use("/payment", paymentRoutes); // handles /payment/*
 app.use("/pixels", pixelRoutes);
 
 // Serve static files from /uploads
