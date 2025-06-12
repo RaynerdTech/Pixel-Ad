@@ -74,11 +74,15 @@ export default function PixelGrid() {
         <AddPixelModal
           pixelId={selectedEmptyPixel}
           onClose={() => setSelectedEmptyPixel(null)}
-          onSuccess={(newPixelFromServer) => {
-            console.log('Pixel added successfully:', newPixelFromServer);
-            setSelectedEmptyPixel(null);
-            fetchPixels(); // Refetch after success
-          }}
+         onSuccess={(newPixelFromServer) => {
+  setSelectedEmptyPixel(null);
+  setPixels((prevPixels) =>
+    prevPixels.map((px) =>
+      px.id === newPixelFromServer.position ? { ...px, ...newPixelFromServer } : px
+    )
+  );
+}}
+
         />
       )}
     </>

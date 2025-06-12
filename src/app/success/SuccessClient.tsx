@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Image from 'next/image'; // ✅ Import Next Image
-import { CheckCircle, Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import { CheckCircle, Loader2, XCircle } from 'lucide-react';
 
 const GRID_WIDTH = 100;
 
@@ -15,6 +15,26 @@ type Pixel = {
   reference: string;
   imageUrl: string;
 };
+
+// A wrapper component for a consistent card layout across all states
+const StatusCard = ({ children }: { children: React.ReactNode }) => (
+  <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans">
+    <div className="w-full max-w-lg bg-white shadow-2xl rounded-2xl p-6 sm:p-10 text-center transform transition-all duration-300">
+      {children}
+    </div>
+  </div>
+);
+
+// A reusable button for navigation
+const HomeButton = () => (
+    <button
+      onClick={() => (window.location.href = '/')}
+      className="mt-8 bg-gradient-to-r from-sky-500 to-sky-600 text-white font-bold px-8 py-3 rounded-full shadow-lg hover:shadow-xl hover:from-sky-600 hover:to-sky-700 transition-all duration-300 ease-in-out transform active:scale-95 hover:scale-105 tracking-wide"
+    >
+      Explore the Grid
+    </button>
+);
+
 
 export default function SuccessClient() {
   const searchParams = useSearchParams();
@@ -33,7 +53,13 @@ export default function SuccessClient() {
   }
 
   useEffect(() => {
+    // This effect is side-effect free in terms of rendering, so we disable the exhaustive-deps rule.
     const verifyPayment = async () => {
+      if (!reference) {
+          setError('No payment reference found.');
+          setLoading(false);
+          return;
+      }
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/verify/${reference}`);
         const data = await res.json();
@@ -44,103 +70,114 @@ export default function SuccessClient() {
         } else {
           setError(data.message || 'Payment verification failed.');
         }
-      } catch {
-        setError('Something went wrong while verifying payment.');
+      } catch (err: any) {
+        setError(err.message || 'Something went wrong while verifying payment.');
       } finally {
         setLoading(false);
       }
     };
 
-    if (reference) {
-      verifyPayment();
-    } else {
-      setError('No payment reference found.');
-      setLoading(false);
-    }
+    verifyPayment();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reference]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 flex items-center justify-center px-4 py-12 animate-fadeIn">
-        <div className="bg-white shadow-3xl rounded-3xl p-10 max-w-xl w-full text-center border border-blue-100 transform transition-all duration-500 hover:scale-[1.01]">
-          <div className="flex flex-col items-center justify-center">
-            <Loader2 className="h-12 w-12 text-blue-500 animate-spin-slow" />
-            <p className="mt-5 text-lg text-blue-700 font-medium">Verifying your payment...</p>
-          </div>
+      <StatusCard>
+        <div className="flex flex-col items-center justify-center gap-y-5">
+          <Loader2 className="h-12 w-12 text-sky-500 animate-spin" />
+          <p className="text-lg text-slate-700 font-medium">Verifying your payment...</p>
+          <p className="text-sm text-slate-500">Please wait a moment.</p>
         </div>
-      </div>
+      </StatusCard>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 flex items-center justify-center px-4 py-12 animate-fadeIn">
-        <div className="bg-white shadow-3xl rounded-3xl p-10 max-w-xl w-full text-center border border-blue-100 transform transition-all duration-500 hover:scale-[1.01]">
-          <div className="text-red-600">
-            <p className="text-xl font-bold mb-3">⛔ Oh no! {error}</p>
-            <p className="text-base text-gray-500">Please contact support if the issue persists. We&apos;re here to help!</p>
-          </div>
+      <StatusCard>
+        <div className="flex flex-col items-center justify-center gap-y-4">
+            <XCircle className="h-16 w-16 text-red-500 mx-auto" />
+            <h1 className="text-2xl font-bold text-slate-800">Payment Error</h1>
+            <p className="text-base text-slate-600 max-w-md">
+                {error}
+            </p>
+            <p className="text-sm text-slate-500 mt-2">
+                Please contact support if this issue persists.
+            </p>
+            <HomeButton />
         </div>
-      </div>
+      </StatusCard>
     );
   }
 
   if (!pixel) {
-    return null;
+    // This case handles a successful API call that returns no pixel and no error.
+    return (
+        <StatusCard>
+            <div className="flex flex-col items-center justify-center gap-y-4">
+                <XCircle className="h-16 w-16 text-slate-500 mx-auto" />
+                <h1 className="text-2xl font-bold text-slate-800">Pixel Not Found</h1>
+                <p className="text-base text-slate-600">
+                    We couldn't retrieve your pixel details, even though the payment was processed.
+                </p>
+                 <p className="text-sm text-slate-500 mt-2">
+                    Please contact our support with your transaction reference.
+                </p>
+                <HomeButton />
+            </div>
+        </StatusCard>
+    );
   }
 
   const { row, col } = getRowCol(pixel.position);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 flex items-center justify-center px-4 py-12 animate-fadeIn">
-      <div className="bg-white shadow-3xl rounded-3xl p-10 max-w-xl w-full text-center border border-blue-100 transform transition-all duration-500 hover:scale-[1.01]">
-        <>
-          <CheckCircle className="h-16 w-16 text-blue-500 mx-auto mb-6 drop-shadow-lg" />
-          <h1 className="text-4xl font-extrabold text-blue-800 mb-3 tracking-tight">Payment Confirmed!</h1>
-          <p className="text-lg text-blue-600 mb-8 font-light">Your unique pixel now shines brightly on our grid.</p>
-
-          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 text-left text-base text-blue-700 shadow-lg mb-8 transition-all duration-300 hover:shadow-xl">
-            <p className="mb-2">
-              <strong className="text-blue-900">Pixel Location:</strong> Row {row}, Column {col}
-            </p>
-            <p className="mb-2">
-              <strong className="text-blue-900">Your Link:</strong>{' '}
-              <a href={pixel.linkUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline ml-2 transition-colors duration-200">
-                {pixel.linkUrl}
-              </a>
-            </p>
-            <p className="mb-2">
-              <strong className="text-blue-900">Amount Secured:</strong> ₦{pixel.amount}
-            </p>
-            <p className="mb-2">
-              <strong className="text-blue-900">Description:</strong> {pixel.description}
-            </p>
-            <p>
-              <strong className="text-blue-900">Transaction ID:</strong> {pixel.reference}
-            </p>
-          </div>
-
-         {pixel.imageUrl && (
-  <div className="mt-8 flex justify-center">
-    <Image
-      src={pixel.imageUrl}
-      alt="Your Unique Pixel"
-      width={128}
-      height={128}
-      className="rounded-xl border-4 border-blue-300 shadow-lg transition-transform duration-300 hover:scale-105"
-    />
-  </div>
-)}
-
-
-          <button
-            onClick={() => window.location.href = '/'}
-            className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-bold px-8 py-4 rounded-full shadow-2xl transition-all duration-300 ease-in-out transform active:scale-98 hover:scale-105 tracking-wide text-lg"
-          >
-            Explore the Grid
-          </button>
-        </>
-      </div>
+  // Detail Row Component for the receipt
+  const DetailRow = ({ label, value, isLink = false, isBreakable = false }: { label: string, value: string | number, isLink?: boolean, isBreakable?: boolean }) => (
+    <div className="py-3 px-4 bg-slate-50/75 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-4">
+      <dt className="text-sm font-semibold text-slate-600">{label}</dt>
+      <dd className={`text-sm text-slate-800 sm:text-right font-medium ${isBreakable ? 'break-all' : 'truncate'}`}>
+        {isLink ? (
+          <a href={value as string} target="_blank" rel="noopener noreferrer" className="text-sky-600 hover:text-sky-800 hover:underline transition-colors duration-200">
+            {value}
+          </a>
+        ) : (
+          value
+        )}
+      </dd>
     </div>
+  );
+
+  return (
+    <StatusCard>
+        <div className="flex flex-col items-center justify-center gap-y-3">
+            <CheckCircle className="h-16 w-16 text-teal-500 drop-shadow-md" />
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight">Payment Confirmed!</h1>
+            <p className="text-base text-slate-600 mb-6">Your unique pixel now shines brightly on our grid.</p>
+        </div>
+
+        {pixel.imageUrl && (
+            <div className="mb-8 flex justify-center">
+            <Image
+                src={pixel.imageUrl}
+                alt="Your Purchased Pixel"
+                width={128}
+                height={128}
+                className="rounded-2xl border-4 border-white shadow-lg transition-transform duration-300 hover:scale-105"
+                priority
+            />
+            </div>
+        )}
+
+        <dl className="w-full space-y-3 text-left">
+            <DetailRow label="Pixel Location" value={`Row ${row}, Column ${col}`} />
+            <DetailRow label="Amount Paid" value={`₦${new Intl.NumberFormat('en-NG').format(pixel.amount)}`} />
+            <DetailRow label="Your Link" value={pixel.linkUrl} isLink isBreakable />
+            <DetailRow label="Description" value={pixel.description} isBreakable />
+            <DetailRow label="Transaction ID" value={pixel.reference} isBreakable />
+        </dl>
+
+       <HomeButton />
+    </StatusCard>
   );
 }

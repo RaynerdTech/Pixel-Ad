@@ -2,6 +2,8 @@ const axios = require('axios');
 const Pixel = require('../models/Pixel');
 const { cloudinary } = require('../config/cloudinary');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const { clearPixelCache } = require('./pixelController'); // adjust path if needed
+
 require('dotenv').config();
 
 const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY;
@@ -92,6 +94,8 @@ exports.verifyTransaction = async (req, res) => {
       });
 
       await pixel.save();
+
+      clearPixelCache(); // Clear cache after creating a new pixel
 
       return res.status(200).json({ success: true, pixel });
     }

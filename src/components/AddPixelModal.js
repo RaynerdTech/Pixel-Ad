@@ -69,9 +69,15 @@ export default function AddPixelModal({ pixelId, onClose, onSuccess }) {
         throw new Error(data.message || 'Failed to initialize payment');
       }
 
-      if (onSuccess && typeof onSuccess === 'function') {
-        onSuccess();
-      }
+     if (onSuccess && typeof onSuccess === 'function') {
+  onSuccess({
+    position: pixelId,
+    linkUrl: link,
+    description,
+    imageUrl: URL.createObjectURL(imageFile), // Temporary preview until verification updates DB
+    isPaid: false, // This is still pending until payment verified
+  });}
+
 
       window.location.href = data.authorization_url;
 
