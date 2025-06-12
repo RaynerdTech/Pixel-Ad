@@ -70,15 +70,20 @@ export default function SuccessClient() {
         } else {
           setError(data.message || 'Payment verification failed.');
         }
-      } catch (err: any) {
-        setError(err.message || 'Something went wrong while verifying payment.');
-      } finally {
-        setLoading(false);
-      }
+      }catch (err: unknown) {
+  if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError('Something went wrong while verifying payment.');
+  }
+} finally {
+  setLoading(false);
+}
+
     };
 
     verifyPayment();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [reference]);
 
   if (loading) {
@@ -119,7 +124,7 @@ export default function SuccessClient() {
                 <XCircle className="h-16 w-16 text-slate-500 mx-auto" />
                 <h1 className="text-2xl font-bold text-slate-800">Pixel Not Found</h1>
                 <p className="text-base text-slate-600">
-                    We couldn't retrieve your pixel details, even though the payment was processed.
+                    We couldn&apos;t retrieve your pixel details, even though the payment was processed.
                 </p>
                  <p className="text-sm text-slate-500 mt-2">
                     Please contact our support with your transaction reference.
