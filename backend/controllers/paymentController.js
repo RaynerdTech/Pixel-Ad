@@ -19,30 +19,33 @@ const storage = new CloudinaryStorage({
 });
 const upload = multer({ storage });
 
-exports.upload = upload; // Export middleware to use in route
+exports.upload = upload; // Export middleware for use in route
 
-// @route POST /api/payment/initialize
+// ==========================================
+// @route   POST /api/payment/initialize
+// ==========================================
 exports.initializeTransaction = async (req, res) => {
   const { email, amount, position, linkUrl, description } = req.body;
 
   try {
     // Upload image to Cloudinary
-    const uploadedImage = req.file.path; // multer-storage-cloudinary gives you .path = URL
+    const uploadedImageUrl = req.file.path; // multer-storage-cloudinary gives .path as the Cloudinary URL
 
+    // Pack metadata to be passed to Paystack
     const metadata = {
-      position,
+      position, // zero-based or one-based based on your frontend – stay consistent
       linkUrl,
       description,
-      imageUrl: uploadedImage,
+      imageUrl: uploadedImageUrl,
     };
 
     const response = await axios.post(
       'https://api.paystack.co/transaction/initialize',
       {
         email,
-        amount: amount * 100,
+        amount: amount * 100, // amount in kobo
         metadata,
-        callback_url: `${process.env.FRONTEND_URL}/success`,
+        callback_url: `${process.env.FRONTEND_URL}/success`, // optional
       },
       {
         headers: {
@@ -55,12 +58,14 @@ exports.initializeTransaction = async (req, res) => {
     console.log('✅ Paystack Init Response:', response.data);
     res.status(200).json({ authorization_url: response.data.data.authorization_url });
   } catch (err) {
-    console.error('Paystack init error:', err.response?.data || err.message);
+    console.error('❌ Paystack init error:', err.response?.data || err.message);
     res.status(500).json({ error: 'Failed to initialize transaction' });
   }
 };
 
-// @route GET /api/payment/verify/:reference
+// ==========================================
+// @route   GET /api/payment/verify/:reference
+// ==========================================
 exports.verifyTransaction = async (req, res) => {
   const { reference } = req.params;
 
@@ -75,18 +80,19 @@ exports.verifyTransaction = async (req, res) => {
 
     if (data.status === 'success') {
       const { metadata } = data;
-      const humanPosition = Number(metadata.position) + 1;
+      const position = Number(metadata.position); // assume this is already zero-based
 
-      const exists = await Pixel.findOne({ position: humanPosition });
+      // Prevent double booking
+      const exists = await Pixel.findOne({ position });
       if (exists) {
-        return res.status(409).json({ success: false, message: 'Position already taken' });
+        return res.status(409).json({ success: false, message: 'Pixel position already taken' });
       }
 
       const pixel = new Pixel({
-        position: humanPosition,
+        position,
         linkUrl: metadata.linkUrl,
         description: metadata.description,
-        imageUrl: metadata.imageUrl, // cloudinary URL
+        imageUrl: metadata.imageUrl,
         email: data.customer.email,
         amount: data.amount / 100,
         reference: data.reference,
@@ -95,14 +101,14 @@ exports.verifyTransaction = async (req, res) => {
 
       await pixel.save();
 
-      clearPixelCache(); // Clear cache after creating a new pixel
+      clearPixelCache(); // clear cached data if any
 
       return res.status(200).json({ success: true, pixel });
     }
 
     res.status(400).json({ success: false, message: 'Payment not successful' });
   } catch (err) {
-    console.error('Paystack verify error:', err.response?.data || err.message);
+    console.error('❌ Paystack verify error:', err.response?.data || err.message);
     res.status(500).json({ error: 'Failed to verify transaction' });
   }
 };

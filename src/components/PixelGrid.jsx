@@ -4,34 +4,26 @@ import React, { useEffect, useState, useCallback } from 'react';
 import ImageModal from './ImageModal';
 import AddPixelModal from './AddPixelModal';
 
+const TOTAL_PIXELS = 1000;
 const BASE_BOX_SIZE = 1; // rem
 const MAX_SPAN = 2;
-// const BASE_URL = 'http://localhost:5000'; // Central base URL
 
 export default function PixelGrid() {
-  const [pixels, setPixels] = useState([]);
+  const [pixels, setPixels] = useState(Array.from({ length: TOTAL_PIXELS }, (_, i) => ({ id: i, position: i })));
   const [modalPixel, setModalPixel] = useState(null);
   const [selectedEmptyPixel, setSelectedEmptyPixel] = useState(null);
 
   const fetchPixels = useCallback(async () => {
-    console.log('Fetching pixels...');
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/pixels/view-pixel`);
       const data = await response.json();
-      console.log('Fetched Pixel Data:', data);
-
       if (response.ok) {
-        const generatedPixels = Array.from({ length: 1000 }, (_, i) => {
-          const pixelData = data.find((pixel) => pixel.position === i);
-          const imageUrl = pixelData?.imageUrl || null;
-          return {
-            id: i,
-            position: i,
-            ...pixelData,
-            imageUrl,
-          };
-        });
-        setPixels(generatedPixels);
+        setPixels((prevPixels) =>
+          prevPixels.map((px) => {
+            const matched = data.find((d) => d.position === px.position);
+            return matched ? { ...px, ...matched } : px;
+          })
+        );
       } else {
         console.error('Failed to fetch pixels', data);
       }
@@ -55,7 +47,7 @@ export default function PixelGrid() {
   return (
     <>
       <div
-        className="grid gap-3"
+        className="grid gap-1.5 sm:gap-2.5"
         style={{
           gridTemplateColumns: `repeat(auto-fill, minmax(${BASE_BOX_SIZE}rem, 1fr))`,
           width: '100%',
@@ -66,32 +58,29 @@ export default function PixelGrid() {
         ))}
       </div>
 
-      {modalPixel && (
-        <ImageModal pixel={modalPixel} onClose={() => setModalPixel(null)} />
-      )}
+      {modalPixel && <ImageModal pixel={modalPixel} onClose={() => setModalPixel(null)} />}
 
       {selectedEmptyPixel !== null && (
         <AddPixelModal
           pixelId={selectedEmptyPixel}
           onClose={() => setSelectedEmptyPixel(null)}
-         onSuccess={(newPixelFromServer) => {
-  setSelectedEmptyPixel(null);
-  setPixels((prevPixels) =>
-    prevPixels.map((px) =>
-      px.id === newPixelFromServer.position ? { ...px, ...newPixelFromServer } : px
-    )
-  );
-}}
-
+          onSuccess={(newPixelFromServer) => {
+            setSelectedEmptyPixel(null);
+            setPixels((prevPixels) =>
+              prevPixels.map((px) =>
+                px.id === newPixelFromServer.position ? { ...px, ...newPixelFromServer } : px
+              )
+            );
+          }}
         />
       )}
     </>
   );
 }
 
-// --- PixelBox Component ---
 function PixelBox({ pixel, onClick }) {
   const [span, setSpan] = useState({ col: 1, row: 1 });
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     if (!pixel || !pixel.imageUrl) {
@@ -101,10 +90,11 @@ function PixelBox({ pixel, onClick }) {
     const img = new Image();
     img.src = pixel.imageUrl;
     img.onload = () => {
-      const basePixelSize = BASE_BOX_SIZE * 16; // Assuming 1rem = 16px
+      const basePixelSize = BASE_BOX_SIZE * 16;
       const cols = Math.min(Math.max(1, Math.ceil(img.width / basePixelSize)), MAX_SPAN);
       const rows = Math.min(Math.max(1, Math.ceil(img.height / basePixelSize)), MAX_SPAN);
       setSpan({ col: cols, row: rows });
+      setLoaded(true);
     };
     img.onerror = () => {
       console.error("Failed to load image:", pixel.imageUrl);
@@ -114,14 +104,15 @@ function PixelBox({ pixel, onClick }) {
       img.onload = null;
       img.onerror = null;
     };
-  }, [pixel, pixel?.imageUrl]);
+  }, [pixel?.imageUrl]);
 
   const isEmpty = !pixel?.imageUrl;
   const boxClasses = `
     ${isEmpty ? 'bg-white hover:bg-gray-100' : 'bg-gray-200'}
     flex items-center justify-center overflow-hidden
-    border border-transparent ${isEmpty ? 'hover:border-gray-300' : ''}
-    cursor-pointer transition-all duration-200 relative
+    border border-gray-100 ${isEmpty ? 'hover:border-gray-300' : ''}
+    cursor-pointer transition-all duration-300 ease-in-out
+    relative ${loaded ? 'animate-fade-in' : ''}
   `;
 
   return (
